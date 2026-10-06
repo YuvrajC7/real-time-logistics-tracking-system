@@ -16,30 +16,37 @@ DECLARE
   v_uid UUID;
 BEGIN
   -- Insert demo accounts
-  INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) VALUES
-    (v_admin_id, 'admin@rtlts.in', '{"full_name": "Admin User"}', crypt('Admin@123', gen_salt('bf')), now()),
-    (v_dispatch_id, 'dispatch@rtlts.in', '{"full_name": "Dispatcher One"}', crypt('Dispatch@123', gen_salt('bf')), now()),
-    (v_driver1_id, 'driver1@rtlts.in', '{"full_name": "Driver One"}', crypt('Driver@123', gen_salt('bf')), now()),
-    (v_customer1_id, 'customer1@rtlts.in', '{"full_name": "Customer One"}', crypt('Customer@123', gen_salt('bf')), now());
+    INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) VALUES
+      (v_admin_id, 'admin@rtlts.in', '{"full_name": "Admin User"}', crypt('Admin@123', gen_salt('bf')), now()),
+      (v_dispatch_id, 'dispatch@rtlts.in', '{"full_name": "Dispatcher One"}', crypt('Dispatch@123', gen_salt('bf')), now()),
+      (v_driver1_id, 'driver1@rtlts.in', '{"full_name": "Driver One"}', crypt('Driver@123', gen_salt('bf')), now()),
+      (v_customer1_id, 'customer1@rtlts.in', '{"full_name": "Customer One"}', crypt('Customer@123', gen_salt('bf')), now())
+    ON CONFLICT (id) DO NOTHING;
 
   -- Update their roles
   UPDATE profiles SET role = 'admin' WHERE profile_id = v_admin_id;
   UPDATE profiles SET role = 'dispatcher' WHERE profile_id = v_dispatch_id;
   UPDATE profiles SET role = 'driver' WHERE profile_id = v_driver1_id;
   UPDATE profiles SET role = 'customer' WHERE profile_id = v_customer1_id;
+  
+  -- The trigger automatically inserted them into customers because role defaulted to customer.
+  -- Delete the ones that are NOT customers.
+  DELETE FROM customers WHERE customer_id IN (v_admin_id, v_dispatch_id, v_driver1_id);
 
   -- Insert subtypes
   INSERT INTO employees (employee_id, designation) VALUES (v_admin_id, 'ADMIN'), (v_dispatch_id, 'DISPATCHER');
   INSERT INTO drivers (driver_id, license_no, license_expiry, rating, total_deliveries, on_time_count) 
     VALUES (v_driver1_id, 'DL-IND-001', '2030-12-31', 4.8, 150, 145);
-  INSERT INTO customers (customer_id, company_name, customer_type) VALUES (v_customer1_id, 'Demo Corp', 'BUSINESS');
+  INSERT INTO customers (customer_id, company_name, customer_type) VALUES (v_customer1_id, 'Demo Corp', 'BUSINESS') ON CONFLICT (customer_id) DO UPDATE SET company_name = EXCLUDED.company_name, customer_type = EXCLUDED.customer_type;
 
   -- Generate 9 more drivers
   FOR i IN 2..10 LOOP
     v_uid := gen_random_uuid();
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) 
-      VALUES (v_uid, 'driver' || i || '@rtlts.in', '{"full_name": "Driver ' || i || '"}', crypt('Driver@123', gen_salt('bf')), now());
+      VALUES (v_uid, 'driver' || i || '@rtlts.in', '{"full_name": "Driver ' || i || '"}', crypt('Driver@123', gen_salt('bf')), now())
+      ON CONFLICT (id) DO NOTHING;
     UPDATE profiles SET role = 'driver' WHERE profile_id = v_uid;
+    DELETE FROM customers WHERE customer_id = v_uid;
     INSERT INTO drivers (driver_id, license_no, license_expiry) VALUES (v_uid, 'DL-IND-00' || i, '2030-12-31');
   END LOOP;
 
@@ -47,17 +54,20 @@ BEGIN
   FOR i IN 2..26 LOOP
     v_uid := gen_random_uuid();
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) 
-      VALUES (v_uid, 'customer' || i || '@rtlts.in', '{"full_name": "Customer ' || i || '"}', crypt('Customer@123', gen_salt('bf')), now());
+      VALUES (v_uid, 'customer' || i || '@rtlts.in', '{"full_name": "Customer ' || i || '"}', crypt('Customer@123', gen_salt('bf')), now())
+      ON CONFLICT (id) DO NOTHING;
     UPDATE profiles SET role = 'customer' WHERE profile_id = v_uid;
-    INSERT INTO customers (customer_id) VALUES (v_uid);
+    -- The trigger already inserted into customers, we don't need to insert again.
   END LOOP;
 
   -- Generate 2 more dispatchers
   FOR i IN 2..3 LOOP
     v_uid := gen_random_uuid();
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) 
-      VALUES (v_uid, 'dispatch' || i || '@rtlts.in', '{"full_name": "Dispatcher ' || i || '"}', crypt('Dispatch@123', gen_salt('bf')), now());
+      VALUES (v_uid, 'dispatch' || i || '@rtlts.in', '{"full_name": "Dispatcher ' || i || '"}', crypt('Dispatch@123', gen_salt('bf')), now())
+      ON CONFLICT (id) DO NOTHING;
     UPDATE profiles SET role = 'dispatcher' WHERE profile_id = v_uid;
+    DELETE FROM customers WHERE customer_id = v_uid;
     INSERT INTO employees (employee_id, designation) VALUES (v_uid, 'DISPATCHER');
   END LOOP;
 END $$;
