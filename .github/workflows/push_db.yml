@@ -11,4 +11,4 @@ jobs:
         env:
           DB_URL: postgresql://postgres:YuvrajCR789600@db.vmptffyvknyoybdoqfdq.supabase.co:5432/postgres
         run: |
-          psql "$DB_URL" -f supabase/full_setup.sql
+          psql "$DB_URL" -f supabase/grants.sql
