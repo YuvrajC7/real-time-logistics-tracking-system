@@ -1,26 +1,138 @@
-@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  --ink:       #0B1020;
+  --off-white: #F4F1EA;
+  --amber:     #FFB020;
+  --teal:      #2DD4BF;
+  --muted:     #6B7280;
+  --surface:   #111827;
+  --border:    #1F2937;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+* {
+  box-sizing: border-box;
+  padding: 0;
+  margin: 0;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+html {
+  scroll-behavior: smooth;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background-color: var(--ink);
+  color: var(--off-white);
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 6px; height: 6px; }
+::-webkit-scrollbar-track { background: var(--ink); }
+::-webkit-scrollbar-thumb { background: #374151; border-radius: 3px; }
+::-webkit-scrollbar-thumb:hover { background: #4B5563; }
+
+/* Selection */
+::selection { background: rgba(255, 176, 32, 0.2); color: #F4F1EA; }
+
+/* Focus ring */
+:focus-visible { outline: 2px solid var(--amber); outline-offset: 2px; }
+
+/* Typography */
+.font-display { font-family: 'Space Grotesk', sans-serif; }
+.font-mono    { font-family: 'JetBrains Mono', monospace; }
+
+/* Grid background */
+.bg-grid {
+  background-image:
+    linear-gradient(rgba(255,255,255,0.03) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,255,255,0.03) 1px, transparent 1px);
+  background-size: 32px 32px;
+}
+
+/* Glow effect */
+.glow-amber {
+  box-shadow: 0 0 24px rgba(255, 176, 32, 0.15), 0 0 48px rgba(255, 176, 32, 0.05);
+}
+.glow-teal {
+  box-shadow: 0 0 24px rgba(45, 212, 191, 0.15), 0 0 48px rgba(45, 212, 191, 0.05);
+}
+
+/* Status badge base */
+.status-badge {
+  @apply inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium font-mono;
+}
+
+/* Sidebar nav */
+.nav-item {
+  @apply flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium transition-all duration-150;
+  @apply text-gray-400 hover:text-off-white hover:bg-white/5;
+}
+.nav-item.active {
+  @apply text-amber bg-amber/10;
+}
+
+/* Card */
+.card {
+  @apply bg-surface border border-border rounded-xl p-6;
+}
+
+/* Input base */
+.input-base {
+  @apply w-full bg-surface border border-border rounded-lg px-3 py-2.5 text-off-white placeholder-muted;
+  @apply focus:outline-none focus:border-amber/60 focus:ring-1 focus:ring-amber/30;
+  @apply transition-colors duration-150 text-sm;
+}
+
+/* Button variants */
+.btn-primary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg;
+  @apply bg-amber text-ink font-semibold text-sm;
+  @apply hover:bg-amber/90 transition-all duration-150;
+  @apply focus-visible:outline focus-visible:outline-2 focus-visible:outline-amber;
+  @apply disabled:opacity-40 disabled:cursor-not-allowed;
+}
+.btn-secondary {
+  @apply inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-lg;
+  @apply bg-surface border border-border text-off-white font-medium text-sm;
+  @apply hover:bg-white/5 hover:border-white/20 transition-all duration-150;
+}
+.btn-ghost {
+  @apply inline-flex items-center justify-center gap-2 px-3 py-2 rounded-lg;
+  @apply text-gray-400 font-medium text-sm;
+  @apply hover:text-off-white hover:bg-white/5 transition-all duration-150;
+}
+
+/* Animated counter */
+@keyframes countUp {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.count-up { animation: countUp 0.5s ease-out; }
+
+/* MapLibre overrides */
+.maplibregl-popup-content {
+  background: #111827 !important;
+  border: 1px solid #1F2937 !important;
+  border-radius: 8px !important;
+  color: #F4F1EA !important;
+  padding: 12px 16px !important;
+  font-family: 'Inter', sans-serif !important;
+  font-size: 13px !important;
+}
+.maplibregl-popup-tip { display: none !important; }
+.maplibregl-ctrl-group {
+  background: #111827 !important;
+  border: 1px solid #1F2937 !important;
+  border-radius: 8px !important;
+}
+.maplibregl-ctrl-group button {
+  background: transparent !important;
+  color: #9CA3AF !important;
 }
