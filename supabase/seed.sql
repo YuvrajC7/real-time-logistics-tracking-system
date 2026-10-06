@@ -17,10 +17,10 @@ DECLARE
 BEGIN
   -- Insert demo accounts
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) VALUES
-      (v_admin_id, 'admin@rtlts.in', '{"full_name": "Admin User"}', crypt('Admin@123', gen_salt('bf')), now()),
-      (v_dispatch_id, 'dispatch@rtlts.in', '{"full_name": "Dispatcher One"}', crypt('Dispatch@123', gen_salt('bf')), now()),
-      (v_driver1_id, 'driver1@rtlts.in', '{"full_name": "Driver One"}', crypt('Driver@123', gen_salt('bf')), now()),
-      (v_customer1_id, 'customer1@rtlts.in', '{"full_name": "Customer One"}', crypt('Customer@123', gen_salt('bf')), now())
+      (v_admin_id, 'admin@rtlts.in', '{"full_name": "Admin User"}'::jsonb, crypt('Admin@123', gen_salt('bf')), now()),
+      (v_dispatch_id, 'dispatch@rtlts.in', '{"full_name": "Dispatcher One"}'::jsonb, crypt('Dispatch@123', gen_salt('bf')), now()),
+      (v_driver1_id, 'driver1@rtlts.in', '{"full_name": "Driver One"}'::jsonb, crypt('Driver@123', gen_salt('bf')), now()),
+      (v_customer1_id, 'customer1@rtlts.in', '{"full_name": "Customer One"}'::jsonb, crypt('Customer@123', gen_salt('bf')), now())
     ON CONFLICT (id) DO NOTHING;
 
   -- Update their roles
@@ -43,7 +43,7 @@ BEGIN
   FOR i IN 2..10 LOOP
     v_uid := gen_random_uuid();
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) 
-      VALUES (v_uid, 'driver' || i || '@rtlts.in', '{"full_name": "Driver ' || i || '"}', crypt('Driver@123', gen_salt('bf')), now())
+      VALUES (v_uid, 'driver' || i || '@rtlts.in', ('{"full_name": "Driver ' || i || '"}')::jsonb, crypt('Driver@123', gen_salt('bf')), now())
       ON CONFLICT (id) DO NOTHING;
     UPDATE profiles SET role = 'driver' WHERE profile_id = v_uid;
     DELETE FROM customers WHERE customer_id = v_uid;
@@ -54,7 +54,7 @@ BEGIN
   FOR i IN 2..26 LOOP
     v_uid := gen_random_uuid();
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) 
-      VALUES (v_uid, 'customer' || i || '@rtlts.in', '{"full_name": "Customer ' || i || '"}', crypt('Customer@123', gen_salt('bf')), now())
+      VALUES (v_uid, 'customer' || i || '@rtlts.in', ('{"full_name": "Customer ' || i || '"}')::jsonb, crypt('Customer@123', gen_salt('bf')), now())
       ON CONFLICT (id) DO NOTHING;
     UPDATE profiles SET role = 'customer' WHERE profile_id = v_uid;
     -- The trigger already inserted into customers, we don't need to insert again.
@@ -64,7 +64,7 @@ BEGIN
   FOR i IN 2..3 LOOP
     v_uid := gen_random_uuid();
     INSERT INTO auth.users (id, email, raw_user_meta_data, encrypted_password, email_confirmed_at) 
-      VALUES (v_uid, 'dispatch' || i || '@rtlts.in', '{"full_name": "Dispatcher ' || i || '"}', crypt('Dispatch@123', gen_salt('bf')), now())
+      VALUES (v_uid, 'dispatch' || i || '@rtlts.in', ('{"full_name": "Dispatcher ' || i || '"}')::jsonb, crypt('Dispatch@123', gen_salt('bf')), now())
       ON CONFLICT (id) DO NOTHING;
     UPDATE profiles SET role = 'dispatcher' WHERE profile_id = v_uid;
     DELETE FROM customers WHERE customer_id = v_uid;
