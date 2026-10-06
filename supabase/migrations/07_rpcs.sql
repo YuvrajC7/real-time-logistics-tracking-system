@@ -91,10 +91,13 @@ BEGIN
   IF p_hub_id IS NOT NULL OR p_note IS NOT NULL THEN
     UPDATE tracking_events
     SET hub_id = p_hub_id, note = p_note
-    WHERE shipment_id = p_shipment_id
-      AND status = p_new_status
-    ORDER BY created_at DESC
-    LIMIT 1;
+    WHERE event_id = (
+      SELECT event_id FROM tracking_events
+      WHERE shipment_id = p_shipment_id
+        AND status = p_new_status
+      ORDER BY created_at DESC
+      LIMIT 1
+    );
   END IF;
 
   -- If DELIVERED, create delivery proof placeholder and mark invoice PAID
