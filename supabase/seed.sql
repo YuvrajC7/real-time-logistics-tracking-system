@@ -116,7 +116,7 @@ BEGIN
       VALUES (v_route_id, 'Route ' || i, v_hub_ids[1 + (i % 8)], v_hub_ids[1 + ((i+1) % 8)], 500 + (i * 50));
     -- Stops
     INSERT INTO route_stops (route_id, stop_no, hub_id, expected_minutes) VALUES 
-      (v_route_id, 1, v_hub_ids[1 + (i % 8)], 0),
+      (v_route_id, 1, v_hub_ids[1 + (i % 8)], 1),
       (v_route_id, 2, v_hub_ids[1 + ((i+1) % 8)], 600);
   END LOOP;
 END $$;
